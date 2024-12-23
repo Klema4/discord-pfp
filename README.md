@@ -1,3 +1,8 @@
+### Demo
+```sh
+https://avatar.adam-klement.cz/?user=USER_ID
+```
+
 # Discord PFP (CZ/SK)
 
 Tento projekt poskytuje jednoduchý PHP skript pro získání a cachování profilového obrázku uživatele z Discordu pomocí jeho uživatelského ID.
