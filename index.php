@@ -1,9 +1,34 @@
 <?php
     $token = 'YOUR_TOKEN_GOES_HERE'; // Replace this with your bot token
     $userId = isset($_GET['user']) ? $_GET['user'] : '';
+    $cacheDir = __DIR__ . '/cache/';
+    $cacheTime = 432000; // 5 days in seconds
+
+    // Create cache directory if it doesn't exist
+    if (!is_dir($cacheDir)) {
+        if (!mkdir($cacheDir, 0755, true)) {
+            die('Failed to create cache directory');
+        }
+    }
 
     // Check if user ID is not empty
     if (!empty($userId)) {
+        $cacheFilePng = $cacheDir . $userId . '.png';
+        $cacheFileGif = $cacheDir . $userId . '.gif';
+
+        // Check if the cache file exists and is not older than cache time
+        if ((file_exists($cacheFilePng) && (time() - filemtime($cacheFilePng)) < $cacheTime) ||
+            (file_exists($cacheFileGif) && (time() - filemtime($cacheFileGif)) < $cacheTime)) {
+            if (file_exists($cacheFilePng)) {
+                header('Content-Type: image/png');
+                readfile($cacheFilePng);
+            } else {
+                header('Content-Type: image/gif');
+                readfile($cacheFileGif);
+            }
+            exit;
+        }
+
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, "https://discord.com/api/v10/users/{$userId}");
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -29,18 +54,23 @@
                 
                 // Check if the avatar content was fetched successfully
                 if ($content !== false) {
+                    $cacheFile = $cacheDir . $userId . '.' . $extension;
+                    if (file_put_contents($cacheFile, $content) === false) {
+                        die('Failed to write cache file');
+                    }
                     header('Content-Type: image/' . $extension);
                     echo $content;
                     exit;
                 } else {
-                    echo "Failed to get avatar content from URL: {$avatarUrl}";
-                    exit;
+                    die("Failed to get avatar content from URL: {$avatarUrl}");
                 }
             // If the user does not have an avatar, use the default avatar
             } else {
-                echo "User does not have an avatar. Using default avatar.";
                 $defaultAvatar = "https://cdn.discordapp.com/embed/avatars/" . ($userId % 5) . ".png";
                 $content = file_get_contents($defaultAvatar);
+                if (file_put_contents($cacheFilePng, $content) === false) {
+                    die('Failed to write cache file');
+                }
                 header('Content-Type: image/png');
                 echo $content;
                 exit;
@@ -49,15 +79,15 @@
         } else {
             $defaultAvatar = "https://cdn.discordapp.com/embed/avatars/" . (rand(0, 4)) . ".png";
             $content = file_get_contents($defaultAvatar);
+            if (file_put_contents($cacheFilePng, $content) === false) {
+                die('Failed to write cache file');
+            }
             header('Content-Type: image/png');
             echo $content;
             exit;
         }
     // If user ID is empty, show an error message
     } else {
-        echo "User ID is empty.";
-        exit;
+        die("User ID is empty.");
     }
-    
-    // If the script reaches this point, return one of the default avatars with random number
 ?>

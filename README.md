@@ -1,6 +1,6 @@
 # Discord PFP (CZ/SK)
 
-Tento projekt poskytuje jednoduchý PHP skript pro získání profilového obrázku uživatele z Discordu pomocí jeho uživatelského ID.
+Tento projekt poskytuje jednoduchý PHP skript pro získání a cachování profilového obrázku uživatele z Discordu pomocí jeho uživatelského ID.
 
 ## Požadavky
 
@@ -27,10 +27,12 @@ Skript `index.php` provádí následující kroky:
 
 1. Získá uživatelské ID z parametru URL `user`.
 2. Pokud je uživatelské ID prázdné, zobrazí chybovou zprávu.
-3. Pokud je uživatelské ID vyplněné, provede cURL požadavek na Discord API pro získání informací o uživateli.
-4. Pokud je požadavek úspěšný a uživatel má avatar, stáhne avatar a zobrazí jej.
-5. Pokud uživatel nemá avatar, zobrazí výchozí avatar.
-6. Pokud požadavek na Discord API selže, zobrazí náhodný výchozí avatar.
+3. Pokud je uživatelské ID vyplněné, zkontroluje, zda existuje cachovaná verze profilového obrázku a zda je stále platná (ne starší než 5 dní).
+4. Pokud existuje platná cachovaná verze, zobrazí cachovaný obrázek.
+5. Pokud neexistuje platná cachovaná verze, provede cURL požadavek na Discord API pro získání informací o uživateli.
+6. Pokud je požadavek úspěšný a uživatel má avatar, stáhne a cachuje avatar, poté jej zobrazí.
+7. Pokud uživatel nemá avatar, zobrazí a cachuje výchozí avatar.
+8. Pokud požadavek na Discord API selže, zobrazí a cachuje náhodný výchozí avatar.
 
 ## Licence
 
@@ -38,7 +40,7 @@ Tento projekt je licencován pod MIT licencí.
 
 # Discord PFP (EN)
 
-This project provides a simple PHP script to fetch a user's profile picture from Discord using their user ID.
+This project provides a simple PHP script to fetch and cache a user's profile picture from Discord using their user ID.
 
 ## Requirements
 
@@ -65,10 +67,12 @@ The `index.php` script performs the following steps:
 
 1. Retrieves the user ID from the `user` URL parameter.
 2. If the user ID is empty, it displays an error message.
-3. If the user ID is provided, it makes a cURL request to the Discord API to fetch user information.
-4. If the request is successful and the user has an avatar, it downloads and displays the avatar.
-5. If the user does not have an avatar, it displays a default avatar.
-6. If the request to the Discord API fails, it displays a random default avatar.
+3. If the user ID is provided, it checks if a cached version of the profile picture exists and is still valid (not older than 5 days).
+4. If a valid cached version exists, it serves the cached image.
+5. If no valid cached version exists, it makes a cURL request to the Discord API to fetch user information.
+6. If the request is successful and the user has an avatar, it downloads and caches the avatar, then displays it.
+7. If the user does not have an avatar, it displays and caches a default avatar.
+8. If the request to the Discord API fails, it displays and caches a random default avatar.
 
 ## License
 
